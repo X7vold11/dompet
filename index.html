@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DompetKu - Aplikasi pencatat pengeluaran untuk mahasiswa" />
+  <meta name="theme-color" content="#7C3AED" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="DompetKu" />
+  <title>DompetKu 💸</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Splash Screen / Loading Screen -->
+  <div id="splashScreen" class="splash-screen">
+    <div class="splash-content">
+      <div class="splash-logo">
+        <div class="splash-icon">💸</div>
+        <h1 class="splash-title">DompetKu</h1>
+      </div>
+      <div class="splash-loader">
+        <div class="loader-bar"></div>
+      </div>
+      <p class="splash-text">Memuat aplikasi...</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">💸</span>
+        <span class="logo-text">DompetKu</span>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" id="themeToggle" title="Toggle tema" aria-label="Toggle tema">🌙</button>
+        <button class="btn-icon" id="exportBtn" title="Export CSV">📥</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    
+    <!-- Dashboard Page -->
+    <div id="dashboardPage" class="page active">
+      <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Ringkasan keuangan Anda</p>
+      </div>
+
+      <!-- Summary Cards -->
+      <section class="summary-section">
+        <div class="summary-card card-total">
+          <div class="card-icon">💰</div>
+          <div class="card-content">
+            <div class="card-label">Total Pengeluaran</div>
+            <div class="card-amount" id="totalExpense">Rp 0</div>
+            <div class="card-sub" id="totalCount">0 transaksi</div>
+          </div>
+        </div>
+        <div class="summary-card card-today">
+          <div class="card-icon">📅</div>
+          <div class="card-content">
+            <div class="card-label">Hari Ini</div>
+            <div class="card-amount" id="todayExpense">Rp 0</div>
+            <div class="card-sub" id="todayCount">0 transaksi</div>
+          </div>
+        </div>
+        <div class="summary-card card-month">
+          <div class="card-icon">📊</div>
+          <div class="card-content">
+            <div class="card-label">Bulan Ini</div>
+            <div class="card-amount" id="monthExpense">Rp 0</div>
+            <div class="card-sub" id="monthCount">0 transaksi</div>
+          </div>
+        </div>
+        <div class="summary-card card-top">
+          <div class="card-icon">🏆</div>
+          <div class="card-content">
+            <div class="card-label">Kategori Terbanyak</div>
+            <div class="card-amount card-amount--sm" id="topCategory">—</div>
+            <div class="card-sub" id="topCategoryAmount">Rp 0</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Recent Transactions -->
+      <section class="recent-section">
+        <div class="section-header">
+          <h2 class="section-title">Transaksi Terbaru</h2>
+          <button class="btn-link" onclick="switchPage('transactionsPage')">Lihat Semua →</button>
+        </div>
+        <div id="recentList" class="expense-list">
+          <!-- Recent items (max 5) -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Transactions Page -->
+    <div id="transactionsPage" class="page">
+      <div class="page-header">
+        <h1 class="page-title">Transaksi</h1>
+        <p class="page-subtitle">Semua riwayat pengeluaran</p>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="search-filter-section">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Cari transaksi..."
+            autocomplete="off"
+          />
+        </div>
+        <div class="filter-chips" id="filterChips">
+          <button class="chip chip--active" data-filter="all">Semua</button>
+          <button class="chip" data-filter="Makanan">🍜 Makanan</button>
+          <button class="chip" data-filter="Transportasi">🚌 Transportasi</button>
+          <button class="chip" data-filter="Tugas/Kuliah">📚 Kuliah</button>
+          <button class="chip" data-filter="Hiburan">🎮 Hiburan</button>
+          <button class="chip" data-filter="Kesehatan">💊 Kesehatan</button>
+          <button class="chip" data-filter="Lainnya">📦 Lainnya</button>
+        </div>
+      </div>
+
+      <!-- Transactions List -->
+      <div id="expenseList" class="expense-list">
+        <!-- All items -->
+      </div>
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-icon">🎓</div>
+        <p class="empty-title">Belum ada transaksi</p>
+        <p class="empty-sub">Tap tombol + untuk menambah transaksi pertama!</p>
+      </div>
+    </div>
+
+    <!-- Statistics Page -->
+    <div id="statisticsPage" class="page">
+      <div class="page-header">
+        <h1 class="page-title">Statistik</h1>
+        <p class="page-subtitle">Analisis pengeluaran Anda</p>
+      </div>
+
+      <!-- Category Stats -->
+      <section class="stats-section">
+        <h3 class="stats-title">Pengeluaran per Kategori</h3>
+        <div id="categoryStats" class="category-stats">
+          <!-- Category breakdown -->
+        </div>
+      </section>
+
+      <!-- Monthly Trend -->
+      <section class="stats-section">
+        <h3 class="stats-title">Tren Bulanan</h3>
+        <div id="monthlyStats" class="monthly-stats">
+          <!-- Monthly data -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settingsPage" class="page">
+      <div class="page-header">
+        <h1 class="page-title">Pengaturan</h1>
+        <p class="page-subtitle">Kelola aplikasi Anda</p>
+      </div>
+
+      <div class="settings-section">
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-icon">🌙</div>
+            <div class="setting-text">
+              <div class="setting-label">Mode Gelap</div>
+              <div class="setting-desc">Aktifkan tema gelap</div>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="darkModeToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item" onclick="document.getElementById('exportBtn').click()">
+          <div class="setting-info">
+            <div class="setting-icon">📥</div>
+            <div class="setting-text">
+              <div class="setting-label">Export Data</div>
+              <div class="setting-desc">Download data ke CSV</div>
+            </div>
+          </div>
+          <span class="setting-arrow">→</span>
+        </div>
+
+        <div class="setting-item" id="clearAllBtn">
+          <div class="setting-info">
+            <div class="setting-icon">🗑️</div>
+            <div class="setting-text">
+              <div class="setting-label">Hapus Semua Data</div>
+              <div class="setting-desc">Hapus semua transaksi</div>
+            </div>
+          </div>
+          <span class="setting-arrow">→</span>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <div class="setting-icon">ℹ️</div>
+            <div class="setting-text">
+              <div class="setting-label">Tentang Aplikasi</div>
+              <div class="setting-desc">DompetKu v1.0.0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Floating Action Button -->
+  <button class="fab" id="fabBtn" aria-label="Tambah transaksi">
+    <span class="fab-icon">+</span>
+  </button>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="dashboardPage">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Beranda</span>
+    </button>
+    <button class="nav-item" data-page="transactionsPage">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">Transaksi</span>
+    </button>
+    <button class="nav-item" data-page="statisticsPage">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Statistik</span>
+    </button>
+    <button class="nav-item" data-page="settingsPage">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Pengaturan</span>
+    </button>
+  </nav>
+
+  <!-- Add Transaction Modal -->
+  <div id="addModal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 class="modal-title">Tambah Transaksi</h2>
+        <button class="modal-close" id="closeModal" aria-label="Tutup">×</button>
+      </div>
+      <form id="expenseForm" class="modal-body" novalidate>
+        <div class="form-group">
+          <label for="expenseName">Nama Pengeluaran</label>
+          <input
+            type="text"
+            id="expenseName"
+            placeholder="Contoh: Makan siang"
+            autocomplete="off"
+            maxlength="60"
+            required
+          />
+          <span class="field-error" id="nameError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="expenseAmount">Nominal</label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">Rp</span>
+            <input
+              type="text"
+              id="expenseAmount"
+              placeholder="0"
+              inputmode="numeric"
+              autocomplete="off"
+              required
+            />
+          </div>
+          <span class="field-error" id="amountError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="expenseCategory">Kategori</label>
+          <div class="select-wrap">
+            <select id="expenseCategory" required>
+              <option value="" disabled selected>Pilih kategori...</option>
+              <option value="Makanan">🍜 Makanan</option>
+              <option value="Transportasi">🚌 Transportasi</option>
+              <option value="Tugas/Kuliah">📚 Tugas / Kuliah</option>
+              <option value="Hiburan">🎮 Hiburan</option>
+              <option value="Kesehatan">💊 Kesehatan</option>
+              <option value="Lainnya">📦 Lainnya</option>
+            </select>
+            <span class="select-arrow">▾</span>
+          </div>
+          <span class="field-error" id="categoryError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="expenseDate">Tanggal</label>
+          <input type="date" id="expenseDate" required />
+          <span class="field-error" id="dateError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="expenseNoteInput">Catatan (opsional)</label>
+          <textarea
+            id="expenseNoteInput"
+            placeholder="Tambahkan catatan..."
+            maxlength="100"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <span>💾 Simpan Transaksi</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <!-- Confirm Modal -->
+  <div id="confirmModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box glass-card">
+      <div class="modal-icon">⚠️</div>
+      <h3 class="modal-title" id="modalTitle">Hapus Pengeluaran?</h3>
+      <p class="modal-body" id="modalBody">Tindakan ini tidak dapat dibatalkan.</p>
+      <div class="modal-actions">
+        <button class="btn-modal btn-modal--cancel" id="modalCancel">Batal</button>
+        <button class="btn-modal btn-modal--confirm" id="modalConfirm">Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
